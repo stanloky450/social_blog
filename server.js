@@ -13,7 +13,7 @@ const path = require("path");
 require("dotenv").config({ path: ".env" });
 
 // console.log(process.env.MONGO_URI)
-//mongodb://localhost:27017/nodeapp
+//mongodb://localhost:27017/nodeapp "mongodb+srv://stanloky:stanloky@pawrite.iqvdr.mongodb.net/blogapp?retryWrites=true&w=majority"
 
 //db
 mongoose
