@@ -21,7 +21,7 @@ const { createPostValidator } = require("../validators/post");
 
 const router = express.Router();
 
-router.get("/posts", getPosts);
+router.get("/", getPosts);
 
 // like unlike
 router.put("/post/like", requireSignin, like);
