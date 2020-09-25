@@ -1,5 +1,5 @@
 {
-  "/": "home",
+  "/": "api docs",
   "/signup": "signup",
   "/signin": "signin",
   "/signout": "signout",
