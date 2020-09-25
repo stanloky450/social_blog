@@ -1,55 +1,54 @@
-
-
 const express = require("express");
 const {
-    getPosts, 
-    createPost, 
-    postsByUser, 
-    postById, 
-    deletePost, 
-    isPoster, 
-    updatePost, 
-    Photo,
-    SinglePost,
-    like,
-    unlike,
-    comment,
-uncomment} = require("../controllers/post");
-const {requireSignin} = require("../controllers/auth");
-const {userById} = require("../controllers/user");
-const {createPostValidator} = require("../validators/post");
+  getPosts,
+  createPost,
+  postsByUser,
+  postById,
+  isPoster,
+  updatePost,
+  deletePost,
+  photo,
+  singlePost,
+  like,
+  unlike,
+  comment,
+  uncomment,
+  updateComment,
+} = require("../controllers/post");
+const { requireSignin } = require("../controllers/auth");
+const { userById } = require("../controllers/user");
+const { createPostValidator } = require("../validators/post");
 
 const router = express.Router();
 
+router.get("/posts", getPosts);
+
 // like unlike
-router.put('/post/like', requireSignin, like);
-router.put('/post/unlike', requireSignin, unlike);
+router.put("/post/like", requireSignin, like);
+router.put("/post/unlike", requireSignin, unlike);
 
 // comments
-router.put('/post/comment', requireSignin, comment);
-router.put('/post/uncomment', requireSignin, uncomment);
+router.put("/post/comment", requireSignin, comment);
+router.put("/post/uncomment", requireSignin, uncomment);
+router.put("/post/updatecomment", requireSignin, updateComment);
 
-router.get("/posts",  getPosts);
-router.post("/post/new/:userId",  createPost, createPostValidator );
-router.get("/posts/By/:userId", requireSignin, postsByUser);
-router.get("/post/:postId",   SinglePost);
-router.delete("/post/:postId", requireSignin, isPoster, deletePost);
+// post routes
+router.post(
+  "/post/new/:userId",
+  requireSignin,
+  createPost,
+  createPostValidator
+);
+router.get("/posts/by/:userId", requireSignin, postsByUser);
+router.get("/post/:postId", singlePost);
 router.put("/post/:postId", requireSignin, isPoster, updatePost);
-
-
+router.delete("/post/:postId", requireSignin, isPoster, deletePost);
 // photo
-router.get("/post/photo/:postId", Photo);
+router.get("/post/photo/:postId", photo);
 
-// any route containing  :userId. our app will fist execute userById
-router.param("userId",  userById);
-
-// any route containing  :userId. our app will fist execute postById
+// any route containing :userId, our app will first execute userById()
+router.param("userId", userById);
+// any route containing :postId, our app will first execute postById()
 router.param("postId", postById);
 
 module.exports = router;
-
-// mongodb+srv://stan:123greatman@cluster0-ehpux.mongodb.net/test?retryWrites=true&w=majority
-
-
-
-

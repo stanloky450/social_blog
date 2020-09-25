@@ -13,6 +13,7 @@ const path = require("path");
 require("dotenv").config({ path: ".env" });
 
 // console.log(process.env.MONGO_URI)
+//mongodb://localhost:27017/nodeapp
 
 //db
 mongoose
@@ -22,7 +23,7 @@ mongoose
   })
   .then(() => console.log("db connected"));
 
-mongoose.connection.on("error", (err) => {
+mongoose.connection.on("error", err => {
   console.log(`Db connection error: ${err.messsage}`);
 });
 
@@ -32,7 +33,7 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 
 //apiDocs
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   fs.readFile("docs/apiDocs.json", (err, data) => {
     if (err) {
       res.status(400).json({

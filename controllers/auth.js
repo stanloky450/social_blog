@@ -1,62 +1,55 @@
-const _ = require("lodash");
-const { sendEmail } = require("../helpers");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const expressJwt = require("express-jwt");
 const User = require("../models/user");
+const _ = require("lodash");
+// const { OAuth2Client } = require('google-auth-library');
+const { sendEmail } = require("../helpers");
 
 exports.signup = async (req, res) => {
-  const userExits = await User.findOne({ email: req.body.email });
-  if (userExits)
+  const userExists = await User.findOne({ email: req.body.email });
+  if (userExists)
     return res.status(403).json({
-      error: "Email is taken",
+      error: "Email is taken!",
     });
-
   const user = await new User(req.body);
   await user.save();
-  res.status(200).json({ message: "signup was successful please login" });
+  res.status(200).json({ message: "Signup success! Please login." });
 };
 
 exports.signin = (req, res) => {
-  //finding user base on the email
-
+  // find the user based on email
   const { email, password } = req.body;
   User.findOne({ email }, (err, user) => {
-    //if error or no user
+    // if err or no user
     if (err || !user) {
       return res.status(401).json({
-        error: "user with this email those not exist",
+        error: "User with that email does not exist. Please signup.",
       });
     }
-
-    //if user exist make suer the password matches
-    // Authentication model
-
+    // if user is found make sure the email and password match
+    // create authenticate method in model and use here
     if (!user.authenticate(password)) {
       return res.status(401).json({
-        error: "email and password do not match",
+        error: "Email and password do not match",
       });
     }
-
-    // generate a token with user id and and secret
+    // generate a token with user id and secret
     const token = jwt.sign(
       { _id: user._id, role: user.role },
       process.env.JWT_SECRET
     );
-
-    //persist the token as "t" in cookie with expiry date
+    // persist the token as 't' in cookie with expiry date
     res.cookie("t", token, { expire: new Date() + 9999 });
-
-    // Return responce with user and token  to frontend  client
-
+    // retrun response with user and token to frontend client
     const { _id, name, email, role } = user;
-    return res.json({ token, user: { _id, name, email, role } });
+    return res.json({ token, user: { _id, email, name, role } });
   });
 };
 
 exports.signout = (req, res) => {
   res.clearCookie("t");
-  return res.json({ message: "Signout Successful" });
+  return res.json({ message: "Signout success!" });
 };
 
 exports.requireSignin = expressJwt({
@@ -69,7 +62,7 @@ exports.forgotPassword = (req, res) => {
   if (!req.body.email)
     return res.status(400).json({ message: "No Email in request body" });
 
-  // console.log('forgot password finding user with that email');
+  console.log("forgot password finding user with that email");
   const { email } = req.body;
   console.log("signin req.body", email);
   // find the user based on email
@@ -147,57 +140,89 @@ exports.resetPassword = (req, res) => {
 
 // const client = new OAuth2Client(process.env.REACT_APP_GOOGLE_CLIENT_ID);
 
-exports.socialLogin = async (req, res) => {
-  const idToken = req.body.tokenId;
-  const ticket = await client.verifyIdToken({
-    idToken,
-    audience: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-  });
-  // console.log('ticket', ticket);
-  const {
-    email_verified,
-    email,
-    name,
-    picture,
-    sub: googleid,
-  } = ticket.getPayload();
+// exports.socialLogin = async (req, res) => {
+//   const idToken = req.body.tokenId;
+//   const ticket = await client.verifyIdToken({
+//     idToken,
+//     audience: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+//   });
+//   // console.log('ticket', ticket);
+//   const {
+//     email_verified,
+//     email,
+//     name,
+//     picture,
+//     sub: googleid,
+//   } = ticket.getPayload();
 
-  if (email_verified) {
-    console.log(`email_verified > ${email_verified}`);
+//   if (email_verified) {
+//     console.log(`email_verified > ${email_verified}`);
 
-    const newUser = { email, name, password: googleid };
-    // try signup by finding user with req.email
-    let user = User.findOne({ email }, (err, user) => {
-      if (err || !user) {
-        // create a new user and login
-        user = new User(newUser);
-        req.profile = user;
-        user.save();
-        // generate a token with user id and secret
-        const token = jwt.sign(
-          { _id: user._id, iss: process.env.APP_NAME },
-          process.env.JWT_SECRET
-        );
-        res.cookie("t", token, { expire: new Date() + 9999 });
-        // return response with user and token to frontend client
-        const { _id, name, email } = user;
-        return res.json({ token, user: { _id, name, email } });
-      } else {
-        // update existing user with new social info and login
-        req.profile = user;
-        user = _.extend(user, newUser);
-        user.updated = Date.now();
-        user.save();
-        // generate a token with user id and secret
-        const token = jwt.sign(
-          { _id: user._id, iss: process.env.APP_NAME },
-          process.env.JWT_SECRET
-        );
-        res.cookie("t", token, { expire: new Date() + 9999 });
-        // return response with user and token to frontend client
-        const { _id, name, email } = user;
-        return res.json({ token, user: { _id, name, email } });
-      }
-    });
-  }
-};
+//     const newUser = { email, name, password: googleid };
+//     // try signup by finding user with req.email
+//     let user = User.findOne({ email }, (err, user) => {
+//       if (err || !user) {
+//         // create a new user and login
+//         user = new User(newUser);
+//         req.profile = user;
+//         user.save();
+//         // generate a token with user id and secret
+//         const token = jwt.sign(
+//           { _id: user._id, iss: process.env.APP_NAME },
+//           process.env.JWT_SECRET
+//         );
+//         res.cookie("t", token, { expire: new Date() + 9999 });
+//         // return response with user and token to frontend client
+//         const { _id, name, email } = user;
+//         return res.json({ token, user: { _id, name, email } });
+//       } else {
+//         // update existing user with new social info and login
+//         req.profile = user;
+//         user = _.extend(user, newUser);
+//         user.updated = Date.now();
+//         user.save();
+//         // generate a token with user id and secret
+//         const token = jwt.sign(
+//           { _id: user._id, iss: process.env.APP_NAME },
+//           process.env.JWT_SECRET
+//         );
+//         res.cookie("t", token, { expire: new Date() + 9999 });
+//         // return response with user and token to frontend client
+//         const { _id, name, email } = user;
+//         return res.json({ token, user: { _id, name, email } });
+//       }
+//     });
+//   }
+// };
+
+// exports.socialLogin = (req, res) => {
+//     console.log('social login req.body', req.body);
+
+// // try signup by finding user with req.email
+// let user = User.findOne({ email: req.body.email }, (err, user) => {
+//     if (err || !user) {
+//         // create a new user and login
+//         user = new User(req.body);
+//         req.profile = user;
+//         user.save();
+//         // generate a token with user id and secret
+//         const token = jwt.sign({ _id: user._id, iss: process.env.APP_NAME }, process.env.JWT_SECRET);
+//         res.cookie('t', token, { expire: new Date() + 9999 });
+//         // return response with user and token to frontend client
+//         const { _id, name, email } = user;
+//         return res.json({ token, user: { _id, name, email } });
+//     } else {
+//         // update existing user with new social info and login
+//         req.profile = user;
+//         user = _.extend(user, req.body);
+//         user.updated = Date.now();
+//         user.save();
+//         // generate a token with user id and secret
+//         const token = jwt.sign({ _id: user._id, iss: process.env.APP_NAME }, process.env.JWT_SECRET);
+//         res.cookie('t', token, { expire: new Date() + 9999 });
+//         // return response with user and token to frontend client
+//         const { _id, name, email } = user;
+//         return res.json({ token, user: { _id, name, email } });
+//     }
+// });
+// };

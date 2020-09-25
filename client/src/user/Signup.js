@@ -1,10 +1,11 @@
-import React, {Component} from 'react';
-import {signup} from '../auth/index';
-import {Link} from 'react-router-dom'
+import React, { Component } from "react";
+import { signup } from "../auth";
+import { Link } from "react-router-dom";
+import SocialLogin from "./SocialLogin";
 
 class Signup extends Component {
-    constructor (){
-        super()
+    constructor() {
+        super();
         this.state = {
             name: "",
             email: "",
@@ -12,13 +13,13 @@ class Signup extends Component {
             error: "",
             open: false,
             recaptcha: false
-        }
+        };
     }
 
-    handleChange = (name) => (event) => {
-        this.setState({ error: ""})
-        this.setState({ [name]: event.target.value})
-    }
+    handleChange = name => event => {
+        this.setState({ error: "" });
+        this.setState({ [name]: event.target.value });
+    };
 
     recaptchaHandler = e => {
         this.setState({ error: "" });
@@ -80,27 +81,37 @@ class Signup extends Component {
         }
     };
 
-    
+    signupForm = (name, email, password, recaptcha) => (
+        <form>
+            <div className="form-group">
+                <label className="text-muted">Name</label>
+                <input
+                    onChange={this.handleChange("name")}
+                    type="text"
+                    className="form-control"
+                    value={name}
+                />
+            </div>
+            <div className="form-group">
+                <label className="text-muted">Email</label>
+                <input
+                    onChange={this.handleChange("email")}
+                    type="email"
+                    className="form-control"
+                    value={email}
+                />
+            </div>
+            <div className="form-group">
+                <label className="text-muted">Password</label>
+                <input
+                    onChange={this.handleChange("password")}
+                    type="password"
+                    className="form-control"
+                    value={password}
+                />
+            </div>
 
-signupForm = (name, email, password, recaptcha) => (
-    <form>
-                  <div className="form-group">
-                      <label className="text-muted">Name</label>
-                      <input onChange={this.handleChange("name")} type="text"
-                       className="form-control" value={name} />
-                  </div>
-                  <div className="form-group">
-                      <label className="text-muted">Email</label>
-                      <input onChange={this.handleChange("email")} type="email" 
-                        className="form-control" value={email} />
-                  </div>
-                  <div className="form-group">
-                      <label className="text-muted">Password</label>
-                      <input onChange={this.handleChange("password")} type="password" 
-                      className="form-control"  value={password} />
-                  </div>
-
-                  <div className="form-group">
+            <div className="form-group">
                 <label className="text-muted">
                     {recaptcha ? "Thanks. You got it!" : "What day is today?"}
                 </label>
@@ -111,29 +122,47 @@ signupForm = (name, email, password, recaptcha) => (
                     className="form-control"
                 />
             </div>
-                  <button onClick={this.clickSubmit} className="btn btn-raised btn-primary">Submit</button>
-              </form>
-)
 
-      render() {
-          const {name, email, password, error, open, recaptcha} = this.state
+            <button
+                onClick={this.clickSubmit}
+                className="btn btn-raised btn-primary"
+            >
+                Submit
+            </button>
+        </form>
+    );
+
+    render() {
+        const { name, email, password, error, open, recaptcha } = this.state;
         return (
-          <div className="container">
-              <h1 className="mt-5 mb-5" > Signup</h1>
+            <div className="container">
+                <h2 className="mt-5 mb-5">Signup</h2>
 
-              <div className="alert alert-danger" 
-              style={{display: error ? "" : "none"}}>
-                  {error}
-              </div>
+                <hr />
+                <SocialLogin />
 
-              <div className="alert alert-info" 
-              style={{display: open ? "" : "none"}}>
-                  Your Account Has Been Succesfully Created Please <Link to="/signin">Sign in</Link>
-              </div>
+                <hr />
+                <br />
 
-              {this.signupForm(name, email, password, recaptcha)}
-          </div>
-        ); 
-      }
+                <div
+                    className="alert alert-danger"
+                    style={{ display: error ? "" : "none" }}
+                >
+                    {error}
+                </div>
+
+                <div
+                    className="alert alert-info"
+                    style={{ display: open ? "" : "none" }}
+                >
+                    New account is successfully created. Please{" "}
+                    <Link to="/signin">Sign In</Link>.
+                </div>
+
+                {this.signupForm(name, email, password, recaptcha)}
+            </div>
+        );
+    }
 }
+
 export default Signup;
