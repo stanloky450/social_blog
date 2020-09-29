@@ -1,3 +1,5 @@
 /node_modules
 
 /pawrite
+# Local Netlify folder
+.netlify
