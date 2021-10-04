@@ -3,3 +3,8 @@
 /pawrite
 # Local Netlify folder
 .netlify
+/client/build
+
+.DS_Store
+
+/client/.gitignore
